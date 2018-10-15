@@ -1,0 +1,80 @@
+WELLTYPE6,LOCATION,n,percent
+black oils (GOR < 300),AK-NS,2,5.938594928439931e-5
+black oils (GOR < 300),AK-other,1,2.9692974642199656e-5
+black oils (GOR < 300),CA,575,0.017073460419264802
+black oils (GOR < 300),CO,44,0.0013064908842567848
+black oils (GOR < 300),LA,111,0.0032959201852841616
+black oils (GOR < 300),ND,138,0.004097630500623553
+black oils (GOR < 300),NM,55,0.0016331136053209811
+black oils (GOR < 300),OH,10,2.9692974642199656e-4
+black oils (GOR < 300),OK,421,0.012500742324366055
+black oils (GOR < 300),other_states,780,0.02316052022091573
+black oils (GOR < 300),PA,6,1.7815784785319794e-4
+black oils (GOR < 300),TX,1397,0.04148108557515292
+black oils (GOR < 300),UT,42,0.0012471049349723855
+black oils (GOR < 300),WY,113,0.003355306134568561
+"gas (GOR > 100,000)",AK-NS,2,5.938594928439931e-5
+"gas (GOR > 100,000)",AK-other,14,4.157016449907952e-4
+"gas (GOR > 100,000)",CA,9,2.672367717797969e-4
+"gas (GOR > 100,000)",CO,284,0.008432804798384702
+"gas (GOR > 100,000)",LA,231,0.00685907714234812
+"gas (GOR > 100,000)",NM,43,0.0012767979096145851
+"gas (GOR > 100,000)",OH,169,0.005018112714531742
+"gas (GOR > 100,000)",OK,341,0.010125304352990083
+"gas (GOR > 100,000)",other_states,954,0.028327097808658473
+"gas (GOR > 100,000)",PA,605,0.01796424965853079
+"gas (GOR > 100,000)",TX,973,0.028891264326860264
+"gas (GOR > 100,000)",UT,122,0.0036225429063483578
+"gas (GOR > 100,000)",WY,255,0.007571708533760912
+low production -- gas,AK-other,6,1.7815784785319794e-4
+low production -- gas,CA,2,5.938594928439931e-5
+low production -- gas,CO,33,9.798681631925886e-4
+low production -- gas,LA,23,6.829384167705921e-4
+low production -- gas,NM,12,3.563156957063959e-4
+low production -- gas,OH,71,0.0021082011995961756
+low production -- gas,OK,63,0.0018706574024585784
+low production -- gas,other_states,335,0.009947146505136884
+low production -- gas,PA,64,0.001900350377100778
+low production -- gas,TX,141,0.004186709424550151
+low production -- gas,UT,12,3.563156957063959e-4
+low production -- gas,WY,55,0.0016331136053209811
+low production -- oil only,CA,581,0.017251618267118
+low production -- oil only,CO,16,4.750875942751945e-4
+low production -- oil only,LA,407,0.01208504067937526
+low production -- oil only,ND,17,5.047805689173941e-4
+low production -- oil only,NM,27,8.017103153393907e-4
+low production -- oil only,OH,134,0.003978858602054754
+low production -- oil only,OK,231,0.00685907714234812
+low production -- oil only,other_states,1058,0.03141516717144723
+low production -- oil only,PA,337,0.010006532454421284
+low production -- oil only,TX,1459,0.0433220500029693
+low production -- oil only,UT,9,2.672367717797969e-4
+low production -- oil only,WY,65,0.0019300433517429776
+low production -- oil w/assoc gas,AK-NS,4,1.1877189856879862e-4
+low production -- oil w/assoc gas,AK-other,1,2.9692974642199656e-5
+low production -- oil w/assoc gas,CA,133,0.003949165627412554
+low production -- oil w/assoc gas,CO,20,5.938594928439931e-4
+low production -- oil w/assoc gas,LA,50,0.0014846487321099828
+low production -- oil w/assoc gas,ND,48,0.0014252627828255835
+low production -- oil w/assoc gas,NM,116,0.00344438505849516
+low production -- oil w/assoc gas,OH,97,0.0028802185402933664
+low production -- oil w/assoc gas,OK,71,0.0021082011995961756
+low production -- oil w/assoc gas,other_states,169,0.005018112714531742
+low production -- oil w/assoc gas,PA,408,0.012114733654017459
+low production -- oil w/assoc gas,TX,1176,0.0349189381792268
+low production -- oil w/assoc gas,UT,131,0.003889779678128155
+low production -- oil w/assoc gas,WY,20,5.938594928439931e-4
+oil w/ assoc gas,AK-NS,59,0.0017518855038897796
+oil w/ assoc gas,AK-other,6,1.7815784785319794e-4
+oil w/ assoc gas,CA,298,0.008848506443375497
+oil w/ assoc gas,CO,1035,0.030732228754676644
+oil w/ assoc gas,LA,281,0.008343725874458103
+oil w/ assoc gas,ND,2081,0.06179108023041748
+oil w/ assoc gas,NM,950,0.028208325910089673
+oil w/ assoc gas,OH,290,0.0086109626462379
+oil w/ assoc gas,OK,1383,0.041065383930162125
+oil w/ assoc gas,other_states,484,0.014371399726824633
+oil w/ assoc gas,PA,103,0.0030583763881465646
+oil w/ assoc gas,TX,10302,0.3058970247639409
+oil w/ assoc gas,UT,558,0.016568679850347406
+oil w/ assoc gas,WY,549,0.01630144307856761

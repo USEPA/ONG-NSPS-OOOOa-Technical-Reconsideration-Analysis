@@ -1,0 +1,7 @@
+Some data files are not included in this repo because they contain proprietary information.
+
+To run the code summarizing base year drilling activity, the following files should be placed in the "data-raw" directory:
+
+DrillingInfo data files:
+	DI Export - 1of2 (TX)_2018-02-06.csv
+	DI Export - 2of2 (nonTX)_2018-02-06.csv

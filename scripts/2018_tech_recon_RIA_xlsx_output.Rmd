@@ -1,0 +1,365 @@
+---
+title: "2018 Technical Reconsideration Draft RIA Results"
+date: "September, 2018"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(here)
+library(knitr)
+source(here("scripts", "setup.R"))
+
+knitr::opts_chunk$set(
+  echo = FALSE
+  )
+
+# scenario data in scope from calling env
+if (!exists("scn_comps")) stop("Please render tables by running analysis script.")
+
+#proposed option is set in analysis script
+scn_comp <- scn_comps[[prop_opt]]
+
+# set some knitr options
+options(knitr.table.format = 'html')
+
+wb <- loadWorkbook("../output/xlsx/tables_tech_reconsideration.xlsx")
+
+```
+
+## Introduction
+
+This document provides tables for the OOOOa 2018 Technical Reconsideration RIA. This is an html document which can be viewed in your browser. Matching xlsx output tables are also produced.
+
+**Technical note:** this document is produced by rendering with `rmarkdown::render()` in R.
+
+```{r}
+#Summary Output Sheets "raw" totals by year
+write_tbl_to_xlsx(scn_summ_list[[1]], wb, "Option1")
+write_tbl_to_xlsx(scn_summ_list[[2]], wb, "Option2")
+write_tbl_to_xlsx(scn_summ_list[[3]], wb, "Option3")
+write_tbl_to_xlsx(scn_summ_list[[4]], wb, "AnnComps")
+write_tbl_to_xlsx(scn_summ_list[[5]], wb, "QuarterlyComps")
+```
+
+
+## Overview of Affected Facilities
+
+Affected facilities for the purpose of RIA tables are facilities which make changes in their controls as a result of this reconsideration action. In the case of this framework, this corresponds to differences in the total counts of model-plant fate in particular years. 
+
+Incrementally affected facilities means that vintage == year, e.g., facilities new/modified in a particular year that are affected.
+
+
+```{r tbl_fac_affected}
+tbl_fac_affected <- scn_comp_table(scn_comp,
+              var_list = list("fac_affected"),
+              row_detail = "total",
+              show_years = 2019:2025)
+
+tbl_incr_affected <- scn_comp %>%
+  filter(year == vintage) %>%
+  scn_comp_table(var_list = list("fac_affected"),
+                 row_detail = "total",
+                 show_years = 2019:2025) %>%
+  rename(incr_affected = fac_affected)
+
+tbl_affected <- left_join(tbl_incr_affected,   tbl_fac_affected, by = "year")
+
+tbl_affected %>%
+  mutate_at(.vars = c("incr_affected", "fac_affected"), funs(rndmark(., 2))) %>%
+  kable(caption = "Affected Facility Overview Compared to 2018 Baseline") %>%
+  kable_styling(bootstrap_options = c("condensed"), full_width = F) %>%
+  collapse_rows(columns = 1)
+
+tbl_affected %>%
+  write_tbl_to_xlsx(wb, "fac_affected")
+```
+
+
+# Emissions
+
+```{r tbl_emissions}
+
+tbl_emissions <- scn_comp_table(scn_comp,
+               var_list = list("Methane", "VOC", "HAP", "CH4_CO2e"),
+               row_detail = "total",
+               show_years = 2014:2025) #%>%
+  
+
+tbl_emissions %>%
+  mutate_at(.vars = c("Methane", "VOC", "HAP", "CH4_CO2e"), 
+            funs(rndmark(., 2))) %>%
+  kable(caption = "Change in Emissions for the Proposed Reconsideration Option compared to 2018 Baseline, by year") %>%
+  kable_styling(bootstrap_options = c("condensed"), full_width = F) %>%
+  collapse_rows(columns = 1)
+
+tbl_emissions %>% 
+  
+  write_tbl_to_xlsx(wb, "emissions")
+
+```
+
+
+```{r tbl_gas}
+
+tbl_gas <- scn_comp_table(scn_comp,
+               var_list = list("gas_capture", "gas_revenue"),
+               row_detail = "total",
+               show_years = 2019:2025)
+
+
+tbl_gas %>%
+  mutate(gas_capture = rndmark(gas_capture, 2),
+         gas_revenue = currency(gas_revenue, 2)) %>%
+  kable(caption = "Change in Natural Gas Recovery (Mcf) for the Proposed Reconsideration Option Compared to 2018 Baseline, by year") %>%
+  kable_styling(bootstrap_options = c("condensed"), full_width = F)
+
+tbl_gas %>%
+  write_tbl_to_xlsx(wb, "gas_revenue")
+
+```
+
+```{r tbl_costs}
+
+tbl_costs <- scn_comp_table(scn_comp,
+               var_list = list("capital_cost", "ann_7", "gas_revenue", "ann_7_wgas"),
+               row_detail = "total",
+               show_years = 2019:2025)
+
+
+tbl_costs %>%
+  mutate_at(c("capital_cost", "ann_7", "gas_revenue", "ann_7_wgas"),
+            .funs = funs(Mdollar(.))) %>%
+  kable(caption = "Change in Natural Gas Recovery (Mcf) for the Proposed Reconsideration Option Compared to 2018 Baseline, by year")
+
+tbl_costs %>%
+  write_tbl_to_xlsx(wb, "costs")
+
+```
+
+
+```{r comp_alts}
+
+comp_alts <- scn_combo %>%
+  filter(pol_scn %in% 
+           c("1.Option 1", "2.Option 2", "3.Option 3")) %>%
+  filter(year %in% c(2020,2025)) %>%
+  group_by(pol_scn, year) %>%
+  summarize_at(.vars = vars("Methane", "VOC", "gas_capture", 
+                            "capital_cost", "ann_7", "ann_7_wgas"),
+               .funs = funs(sum(., na.rm = TRUE))) %>%
+  ungroup()
+
+var_order <- c("Methane", "VOC", "gas_capture", "capital_cost", "ann_7", "ann_7_wgas")
+
+comp_alts_vert <- comp_alts %>%
+  mutate_at(c("Methane", "VOC", "gas_capture"), funs(rndmark(., 2))) %>%
+  mutate_at(c("capital_cost", "ann_7", "ann_7_wgas"), funs(Mdollar(., 2))) %>%
+  
+  gather(var, value, "Methane", "VOC", "gas_capture", 
+                            "capital_cost", "ann_7", "ann_7_wgas") %>%
+  spread(pol_scn, value) %>% 
+  mutate(var = factor(var, levels = var_order)) %>%
+  arrange(year, var)
+
+comp_alts_vert %>%
+  kable(caption = "Comparison of Regulatory Alternatives to 2018 Baseline, 2020 and 2025") %>%
+  kable_styling(bootstrap_options = c("condensed"), full_width = F) %>%
+  collapse_rows(c(1))
+
+comp_alts %>%
+  
+  gather(var, value, "Methane", "VOC", "gas_capture", 
+                            "capital_cost", "ann_7", "ann_7_wgas") %>%
+  spread(pol_scn, value) %>% 
+  mutate(var = factor(var, levels = var_order)) %>%
+  arrange(year, var) %>%
+  
+  write_tbl_to_xlsx(wb, "comp_alts")
+
+```
+
+
+```{r pre2016}
+
+tbl_pre2016 <- scn_pre2016_combo %>%
+  filter(year %in% c(2020, 2025)) %>%
+  group_by(year, pol_scn) %>%
+  summarize_at(.vars = vars("fac_affected", "Methane", "VOC", "capital_cost", "ann_7_wgas"),
+               .funs = funs(sum(., na.rm = TRUE))) %>%
+  ungroup()
+
+tbl_pre2016 %>%
+ kable(format.args = list(big.mark = ',', scientific = FALSE))
+
+tbl_pre2016 %>% write_tbl_to_xlsx(wb, "pre2016")
+
+```
+
+
+```{r costs_dr}
+
+costs_dr <- scn_comp_table(scn_comp,
+               var_list = list("ann_7", "gas_revenue", "ann_7_wgas", "ann_3", "ann_3_wgas"),
+               row_detail = "total",
+               show_years = 2019:2025) %>%
+  
+  mutate(gas_rev2 = gas_revenue) %>%
+  select(year, ann_7, gas_revenue, ann_7_wgas, ann_3, gas_rev2, ann_3_wgas)
+  
+
+costs_dr %>%
+  mutate_at(vars(-year), funs(Mdollar(., 2))) %>%
+  kable(caption = "Undiscounted Annualized Cost Changes using 3 and 7 Percent Discount Rates Compared to 2018 Baseline (million 2016$)")
+
+costs_dr %>%
+  write_tbl_to_xlsx(wb, "discount_rate")
+
+```
+
+```{r detail_tabs}
+
+opt_yr_combo <- crossing(opt = 1:3, year = c(2020, 2025)) %>%
+  mutate(optname = case_when(
+    opt == 1 ~ "1.Option 1",
+    opt == 2 ~ "2.Option 2",
+    opt == 3 ~ "3.Option 3"
+    )
+  ) %>% select(opt, optname, year)
+
+
+det_tab <- pmap_chr(opt_yr_combo, ~glue("Detail_Opt{..1}_{..3}"))
+
+tabfun <- function(scn_combo, opt, optname, year) {
+  scn_comp <- scn_combo %>%
+    filter(pol_scn == optname) %>%
+    select(-pol_scn)
+  
+  maintab <- scn_comp_table(scn_comp,
+              var_list = list("fac_affected", "Methane", "VOC", "HAP", "CH4_CO2e", "capital_cost","annual_cost", "gas_revenue", "ann_7_wgas"),
+              row_detail = "source",
+              show_years = c(year)) 
+  
+  tottab <- scn_comp_table(scn_comp,
+              var_list = list("fac_affected", "Methane", "VOC", "HAP", "CH4_CO2e", "capital_cost","annual_cost", "gas_revenue", "ann_7_wgas"),
+              row_detail = "total",
+              show_years = c(year)) %>%
+    mutate(year = "Total")
+  
+  result <- bind_rows(maintab, tottab) #%>%
+    
+  result
+}
+
+
+
+det_tabs <- pmap(opt_yr_combo, ~tabfun(scn_combo, ..1, ..2, ..3))
+
+walk2(det_tabs, det_tab, ~write_tbl_to_xlsx(.x, wb, .y))
+
+kabletab <- function(df, cap) {
+  df %>%
+    mutate_at(c("fac_affected", "Methane", "VOC", "HAP", "CH4_CO2e"),
+              funs(rndmark(., 2))) %>%
+    mutate_at(c("capital_cost", "ann_7_wgas"),
+              funs(currency(., 2))) %>%
+    kable(caption = cap) %>%
+    kable_styling(bootstrap_options = c("condensed"), full_width = F) %>%
+    collapse_rows(c(1,2))
+}   
+
+det_names <- pmap_chr(opt_yr_combo, ~glue("Detail of Affected Units, Option {..1},  {..3}"))
+
+kabletab(det_tabs[[1]], det_names[[1]])
+kabletab(det_tabs[[2]], det_names[[2]])
+kabletab(det_tabs[[3]], det_names[[3]])
+kabletab(det_tabs[[4]], det_names[[4]])
+kabletab(det_tabs[[5]], det_names[[5]])
+kabletab(det_tabs[[6]], det_names[[6]])
+
+```
+
+```{r eav_undiscounted}
+cost_undisc_7 <- table_cost_disc_pv_eav(scn_comp, .07, list("capital_cost", "annual_cost", "ann_r", "gas_revenue", "ann_r_wgas"), disc_flag = FALSE)
+
+write_tbl_to_xlsx(cost_undisc_7, wb)
+
+cost_undisc_3 <- table_cost_disc_pv_eav(scn_comp, .03, list("capital_cost", "annual_cost", "ann_r", "gas_revenue", "ann_r_wgas"), disc_flag = FALSE)
+
+write_tbl_to_xlsx(cost_undisc_3, wb)
+```
+
+```{r eav_disc}
+cost_disc_7 <- table_cost_disc_pv_eav(scn_comp, .07, list("capital_cost", "annual_cost", "ann_r", "gas_revenue", "ann_r_wgas"))
+
+write_tbl_to_xlsx(cost_disc_7, wb)
+
+cost_disc_3 <- table_cost_disc_pv_eav(scn_comp, .03, list("capital_cost", "annual_cost", "ann_r", "gas_revenue", "ann_r_wgas"))
+
+write_tbl_to_xlsx(cost_disc_3, wb)
+```
+
+```{r pv_eav_combo}
+totals_combo <- scn_combo %>%
+  filter(pol_scn %in% 
+           c("1.Option 1", "2.Option 2", "3.Option 3")) %>%
+  
+  group_by(pol_scn) %>%
+  summarize_at(.vars = vars("Methane", "VOC", "gas_capture"),
+               .funs = funs(sum(., na.rm = TRUE))) %>%
+  gather(var, value, Methane, VOC, gas_capture) %>%
+  spread(pol_scn, value) %>%
+  mutate(vartype = "Total")
+
+pv_combo <- scn_combo %>%
+  filter(pol_scn %in% 
+           c("1.Option 1", "2.Option 2", "3.Option 3")) %>%
+  
+  group_by(pol_scn, year) %>%
+  summarize_at(vars("capital_cost", "ann_7", "ann_7_wgas"), 
+               funs(sum(.))) %>%
+  summarize_at(.vars = vars("capital_cost", "ann_7", "ann_7_wgas"),
+               .funs = funs( sum(npv_xy_pmts(as.numeric(year), ., .07, 2016)) ))
+
+eav_combo <- pv_combo %>%
+  mutate_at(.vars = vars("capital_cost", "ann_7", "ann_7_wgas"),
+            .funs = funs(equiv_annualized_value(., 7, .07, 0)))
+
+pv_eav_combo_partial <- bind_rows(
+  mutate(pv_combo, vartype = "PV"),
+  mutate(eav_combo, vartype = "EAV")
+) %>%
+  gather(var, value, capital_cost, ann_7, ann_7_wgas) %>%
+  spread(pol_scn, value)
+
+pv_eav_combo <- bind_rows(
+  totals_combo,
+  pv_eav_combo_partial
+) %>%
+  mutate(vartype = factor(vartype, levels = c("Total", "PV", "EAV"))) %>%
+  mutate(var = factor(var, levels = c("Methane", "VOC", "gas_capture", "capital_cost", "ann_7", "ann_7_wgas"))) %>%
+  arrange(vartype, var) %>%
+  select(var, vartype, everything())
+
+pv_eav_combo
+write_tbl_to_xlsx(pv_eav_combo, wb)
+```
+
+```{r dr_pv_eav}
+dr_pv_eav <- bind_cols(
+  table_cost_disc_pv_eav(scn_comp, .07, list("ann_r", "gas_revenue", "ann_r_wgas")),
+  table_cost_disc_pv_eav(scn_comp, .03, list("ann_r", "gas_revenue", "ann_r_wgas"))
+)
+
+dr_pv_eav
+write_tbl_to_xlsx(dr_pv_eav, wb)
+```
+
+
+
+```{r}
+saveWorkbook(wb, "../output/xlsx/tables_tech_reconsideration.xlsx", overwrite = TRUE)
+```
+
+
