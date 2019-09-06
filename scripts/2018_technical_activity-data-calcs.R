@@ -40,7 +40,7 @@ by_welltype_loc <- read_csv("data/comps-base-year.csv") %>%
 
 #### READ In AEO 2018 Drilling Series -----------
 aeo18_drilling <- read_excel("data-raw/aeo2018_tab14_ongsupply.xlsx") %>%
-  filter(`X__1` == "OGS000:la_TotalLower48W") %>%
+  filter(`...1` == "OGS000:la_TotalLower48W") %>%
   select(`2014`:`2025`) %>%
   gather(YEAR, wells_drilled) %>%
 
